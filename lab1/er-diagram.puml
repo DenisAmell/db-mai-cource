@@ -1,0 +1,69 @@
+@startuml ER-diagram
+!define table class
+!define primary_key <b><u>PK</u></b>
+!define foreign_key <b><u>FK</u></b>
+
+entity "User" as user {
+    *primary_key id : BIGINT
+    --
+    * username : VARCHAR(50)
+    * email : VARCHAR(100)
+    created_at : TIMESTAMP
+}
+
+entity "Blog" as blog {
+    *primary_key id : BIGINT
+    --
+    * title : VARCHAR(100)
+    description : TEXT
+    * foreign_key owner_id : BIGINT --> user.id
+    created_at : TIMESTAMP
+}
+
+entity "Post" as post {
+    *primary_key id : BIGINT
+    --
+    * title : VARCHAR(200)
+    content : TEXT
+    * foreign_key blog_id : BIGINT --> blog.id
+    * foreign_key author_id : BIGINT --> user.id
+    published_at : TIMESTAMP
+}
+
+entity "Comment" as comment {
+    *primary_key id : BIGINT
+    --
+    * text : TEXT
+    * foreign_key user_id : BIGINT --> user.id
+    * foreign_key post_id : BIGINT --> post.id
+    created_at : TIMESTAMP
+}
+
+entity "Like" as like {
+    *primary_key id : BIGINT
+    --
+    * foreign_key user_id : BIGINT --> user.id
+    * foreign_key post_id : BIGINT --> post.id
+    created_at : TIMESTAMP
+}
+
+entity "Subscription" as subscription {
+    *primary_key id : BIGINT
+    --
+    * foreign_key subscriber_id : BIGINT --> user.id
+    * foreign_key blog_id : BIGINT --> blog.id
+    subscribed_at : TIMESTAMP
+}
+
+user ||--o{ blog : "owns"
+user ||--o{ post : "write"
+user ||--o{ comment : "write"
+user ||--o{ like : "puts"
+user ||--o{ subscription : "subscribe"
+
+blog ||--o{ post : "conteins"
+blog ||--o{ subscription
+
+post ||--o{ comment : "has"
+post ||--o{ like : "get"
+@enduml
